@@ -1,4 +1,11 @@
-import nodemailer from "nodemailer"
+'use server'; // Ensure this file runs only on the server
+
+// Prevent accidental browser import
+if (typeof window !== "undefined") {
+  throw new Error("email.ts should only be imported on the server");
+}
+
+import nodemailer from "nodemailer";
 
 const SMTP_CONFIG = {
   host: process.env.SMTP_HOST || "smtp.gmail.com",
@@ -8,7 +15,7 @@ const SMTP_CONFIG = {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
-}
+};
 
 export async function sendEmail({
   to,
@@ -16,13 +23,13 @@ export async function sendEmail({
   html,
   text,
 }: {
-  to: string
-  subject: string
-  html: string
-  text?: string
+  to: string;
+  subject: string;
+  html: string;
+  text?: string;
 }) {
   try {
-    const transporter = nodemailer.createTransporter(SMTP_CONFIG)
+    const transporter = nodemailer.createTransport(SMTP_CONFIG);
 
     const mailOptions = {
       from: `"KN0X-FIT" <${process.env.SMTP_USER}>`,
@@ -30,14 +37,18 @@ export async function sendEmail({
       subject,
       html,
       text: text || html.replace(/<[^>]*>/g, ""), // Strip HTML for text version
-    }
+    };
 
-    const result = await transporter.sendMail(mailOptions)
-    console.log("Email sent successfully:", result.messageId)
-    return { success: true, messageId: result.messageId }
+    const result = await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully:", result.messageId);
+    return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error("Email sending failed:", error)
-    throw new Error(`Failed to send email: ${error instanceof Error ? error.message : "Unknown error"}`)
+    console.error("Email sending failed:", error);
+    throw new Error(
+      `Failed to send email: ${
+        error instanceof Error ? error.message : "Unknown error"
+      }`
+    );
   }
 }
 
@@ -48,9 +59,10 @@ export function generateMotivationalEmail(firstName: string, streakData: any) {
     "Don't let one missed day break your amazing progress!",
     "Your future self will thank you for staying committed today.",
     "Small daily actions lead to big results over time.",
-  ]
+  ];
 
-  const randomMessage = motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)]
+  const randomMessage =
+    motivationalMessages[Math.floor(Math.random() * motivationalMessages.length)];
 
   const html = `
     <!DOCTYPE html>
@@ -131,12 +143,12 @@ export function generateMotivationalEmail(firstName: string, streakData: any) {
         </div>
     </body>
     </html>
-  `
+  `;
 
   return {
     subject: `🔥 Don't break your ${streakData.currentStreak}-day streak, ${firstName}!`,
     html,
-  }
+  };
 }
 
 export function generateWeeklyProgressEmail(firstName: string, weeklyStats: any) {
@@ -188,10 +200,10 @@ export function generateWeeklyProgressEmail(firstName: string, weeklyStats: any)
         </div>
     </body>
     </html>
-  `
+  `;
 
   return {
     subject: `📊 Your weekly progress summary, ${firstName}!`,
     html,
-  }
+  };
 }
