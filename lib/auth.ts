@@ -5,6 +5,11 @@ import bcrypt from "bcryptjs";
 import clientPromise from "./mongodb";
 import type { User } from "./models/User";
 
+// Prevent accidental execution in the browser
+if (typeof window !== "undefined") {
+  throw new Error("Auth code should only run on the server.");
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret";
 
 export async function hashPassword(password: string): Promise<string> {

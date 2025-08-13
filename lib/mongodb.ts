@@ -1,6 +1,11 @@
-"use server"; // Ensure this is server-side only
+'use server'; // Ensure this file is only executed on the server
 
 import { MongoClient } from "mongodb";
+
+// Prevent accidental execution in the browser
+if (typeof window !== "undefined") {
+  throw new Error("MongoDB client code should only run on the server.");
+}
 
 if (!process.env.MONGODB_URI) {
   throw new Error('Invalid/Missing environment variable: "MONGODB_URI"');
@@ -9,7 +14,7 @@ if (!process.env.MONGODB_URI) {
 const uri = process.env.MONGODB_URI;
 const options = {};
 
-let client;
+let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
 if (process.env.NODE_ENV === "development") {

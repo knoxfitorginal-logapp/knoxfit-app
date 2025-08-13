@@ -11,7 +11,19 @@ const nextConfig = {
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
-      // Prevent 'snappy' native module from being bundled for the browser
+      // Prevent native modules and Node built-ins from bundling in the browser
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        http: false,
+        https: false,
+        net: false,
+        tls: false,
+        child_process: false,
+        snappy: false,
+      };
+
+      // Also mark snappy as external for browser build
       config.externals.push({ snappy: "commonjs snappy" });
     }
     return config;
